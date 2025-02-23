@@ -1,0 +1,13 @@
+<form method="post" action="{% url 'share_folder' folder_id=folder.id %}">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Ім'я користувача" required>
+    
+    <label>
+        <input type="radio" name="permission" value="view" checked> Тільки перегляд
+    </label>
+    <label>
+        <input type="radio" name="permission" value="edit"> Редагування
+    </label>
+    
+    <button type="submit">Поділитися</button>
+</form>

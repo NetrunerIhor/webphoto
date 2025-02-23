@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Головна - Фотоальбом{% endblock %}
+
+{% block content %}
+    <div class="text-center py-20">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4">Ласкаво просимо до Фотоальбому!</h2>
+        <p class="text-lg text-gray-600 mb-8">Зберігайте, організовуйте та діліться своїми улюбленими спогадами легко та безпечно.</p>
+        
+        <div class="flex justify-center space-x-4">
+            <a href="{% url 'register-page' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Реєстрація</a>
+            <a href="{% url 'login-page' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">Вхід</a>
+        </div>
+    </div>
+{% endblock %}

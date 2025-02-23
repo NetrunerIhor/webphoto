@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фотоальбом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    {% load static %}
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-3xl font-semibold mb-4">Фотоальбом</h1>
+        {% if folder %}
+            <div class="mb-4">
+                <h2 class="text-xl font-medium">Папка: {{ folder.name }}</h2>
+                <a href="{% url 'photo_album' %}" class="text-blue-500 hover:underline">Назад до кореневої папки</a>
+            </div>
+        {% endif %}
+
+        <h3 class="text-lg font-medium mb-2">Папки:</h3>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            {% for subfolder in folders %}
+                <a href="{% url 'photo_album_with_folder' folder_id=subfolder.id %}" class="bg-gray-200 p-4 rounded-lg flex flex-col items-center hover:bg-gray-300 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                    </svg>
+                    {{ subfolder.name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <h3 class="text-lg font-medium mb-2">Фотографії:</h3>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            {% for photo in photos %}
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="{{ photo.image.url }}" alt="Фото" class="w-full h-32 object-cover rounded">
+                    <div class="mt-2">
+                        {% if photo.share_link %}
+                            <a href="{% url 'shared_photo' share_link=photo.share_link %}" class="text-blue-500 hover:underline">Поділитись</a>
+                        {% else %}
+                            <form method="post" action="{% url 'generate_share_link' photo_id=photo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-blue-500 hover:underline">Згенерувати посилання</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <form method="post" action="{% url 'delete_photo' photo_id=photo.id %}" onsubmit="return confirm('Ви дійсно хочете видалити це фото?');">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-500 hover:underline">Видалити</button>
+                        </form>
+                    </div>
+                </div>
+                
+            {% empty %}
+                <p class="text-gray-500">Немає фотографій.</p>
+            {% endfor %}
+        </div>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg {% if message.tags %} bg-green-100 text-green-800 {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <h3 class="text-lg font-medium mb-2">Додати фото:</h3>
+        <form method="POST" enctype="multipart/form-data" class="mb-4">
+            {% csrf_token %}
+            {{ photo_form.as_p }}
+            <button type="submit" name="upload_photo" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Завантажити</button>
+        </form>
+
+        <h3 class="text-lg font-medium mb-2">Створити папку:</h3>
+        <form method="POST">
+            {% csrf_token %}
+            {{ folder_form.as_p }}
+            <button type="submit" name="create_folder" class="bg-green-500 text-white px-4 py-2 rounded-lg">Створити</button>
+        </form>
+
+        {% if folder %}
+            <h3 class="text-lg font-medium mt-4">Поділитись папкою:</h3>
+            <form method="post" action="{% url 'share_folder' folder_id=folder.id %}" class="mt-2">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Ім'я користувача" class="border p-2 rounded-lg w-full">
+                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-lg mt-2">Поділитись</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>

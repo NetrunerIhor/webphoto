@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Фотоальбом{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <h1 class="text-2xl font-bold text-blue-600"><a href="{% url 'home' %}">Фотоальбом</a></h1>
+            <nav class="flex space-x-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'photo_album' %}" class="text-gray-600 hover:text-blue-600">Мій Альбом</a>
+                    <a href="{% url 'logout' %}" class="text-gray-600 hover:text-blue-600">Вийти</a>
+                {% else %}
+                    <a href="{% url 'login-page' %}" class="text-gray-600 hover:text-blue-600">Вхід</a>
+                    <a href="{% url 'register-page' %}" class="text-gray-600 hover:text-blue-600">Реєстрація</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-6 py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 text-center">
+        <p>&copy; 2025 Фотоальбом. Всі права захищені.</p>
+    </footer>
+
+    {% load static %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Реєстрація{% endblock %}
+
+{% block content %}
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-center">Реєстрація</h2>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
+                Зареєструватися
+            </button>
+        </form>
+        <p class="text-center mt-4">
+            Вже маєте акаунт? 
+            <a href="{% url 'login-page' %}" class="text-blue-600 hover:underline">Увійдіть</a>
+        </p>
+    </div>
+{% endblock %}

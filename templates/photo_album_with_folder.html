@@ -1,0 +1,24 @@
+{% if permission == "edit" %}
+    <form method="post" action="{% url 'photo_album' folder_id=folder.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="photo" required>
+        <button type="submit">Додати фото</button>
+    </form>
+{% endif %}
+
+<div class="grid grid-cols-3 gap-4">
+    {% for photo in photos %}
+        <div class="relative">
+            <img src="{{ photo.image.url }}" alt="Фото" class="w-full h-32 object-cover rounded">
+
+            {% if permission == "edit" %}
+                <form method="post" action="{% url 'delete_photo' photo_id=photo.id %}" class="absolute top-2 right-2">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-600 hover:text-red-800">Видалити</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p class="text-gray-500">Немає фотографій.</p>
+    {% endfor %}
+</div>

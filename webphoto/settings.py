@@ -79,9 +79,8 @@ WSGI_APPLICATION = 'webphoto.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        dj_database_url.config(default=os.getenv('postgresql://broken_photo_album_user:Dg30XcV462ciCnkDfbdCVKKKoRzkr01H@dpg-cv8a7ca3esus73chaing-a/broken_photo_album'))
-    }
+    'default': dj_database_url.config(default=os.getenv('postgresql://broken_photo_album_user:Dg30XcV462ciCnkDfbdCVKKKoRzkr01H@dpg-cv8a7ca3esus73chaing-a/broken_photo_album'))
+    
 }
 
 

@@ -80,7 +80,6 @@ WSGI_APPLICATION = 'webphoto.wsgi.application'
 
 DATABASES = {
     'default': {
-        dj_database_url.config(default=os.getenv('postgresql://broken_photo_album_user:Dg30XcV462ciCnkDfbdCVKKKoRzkr01H@dpg-cv8a7ca3esus73chaing-a.oregon-postgres.render.com/broken_photo_album')),
         dj_database_url.config(default=os.getenv('postgresql://broken_photo_album_user:Dg30XcV462ciCnkDfbdCVKKKoRzkr01H@dpg-cv8a7ca3esus73chaing-a/broken_photo_album'))
     }
 }

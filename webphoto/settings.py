@@ -1,6 +1,10 @@
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
+# хмара
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,6 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Login',
     "main_app",
+
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 SITE_ID = 1
@@ -122,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
+    "Login.backend.EmailAuthBackend",
 )
 #AUTH_USER_MODEL = 'main_app.CustomUser'
 
@@ -136,3 +143,19 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': "dfe4octbm",
+    'API_KEY': "129874782162214",
+    'API_SECRET': 'F6qStYlcoTvgUOdtKNRPYBlYUe4'
+}
+
+cloudinary.config(  
+    cloud_name = "dfe4octbm",  
+    api_key = "129874782162214",  
+    api_secret = "F6qStYlcoTvgUOdtKNRPYBlYUe4" 
+    )
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

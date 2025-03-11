@@ -5,9 +5,18 @@
 {% block content %}
     <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-semibold mb-4 text-center">Вхід</h2>
-        <form method="POST" class="space-y-4">
+        <form method="POST" class="space-y-4" autocomplete="off">
             {% csrf_token %}
-            {{ form.as_p }}
+            <div class="form-group">
+                <label for="username_log" class="block text-sm font-medium text-gray-700">Username</label>
+                {{ form.username }}  <!-- тепер стилі застосовуються -->
+            </div>
+
+            <div class="form-group">
+                <label for="password_log" class="block text-sm font-medium text-gray-700">Password</label>
+                {{ form.password }}  <!-- тепер стилі застосовуються -->
+            </div>
+
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
                 Увійти
             </button>
@@ -15,6 +24,9 @@
         <p class="text-center mt-4">
             Не маєте акаунта? 
             <a href="{% url 'register-page' %}" class="text-blue-600 hover:underline">Зареєструйтеся</a>
+        </p>
+        <p class="text-center mt-2">
+            <a href="{% url 'password_reset_request' %}" class="text-red-600 hover:underline">Забули пароль?</a>
         </p>
     </div>
 {% endblock %}

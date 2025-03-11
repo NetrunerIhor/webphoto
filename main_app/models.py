@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cloudinary.models import CloudinaryField
 #from django.conf import settings
 
 """class CustomUser(AbstractUser):
@@ -16,6 +17,13 @@ class Folder(models.Model):
 
     def __str__(self):
         return self.name
+    def get_ancestors(self):
+        ancestors = []
+        parent = self.parent
+        while parent:
+            ancestors.append(parent)
+            parent = parent.parent
+        return ancestors
 
 class FolderPermission(models.Model):
     READ_ONLY = 'read'
@@ -37,7 +45,7 @@ class FolderPermission(models.Model):
 
 
 class Photo(models.Model):
-    image = models.ImageField(upload_to='photos/')
+    image = CloudinaryField('image')
     description = models.TextField(blank=True, null=True)  # Додано поле description
     folder = models.ForeignKey('Folder', 
         on_delete=models.CASCADE, 
@@ -52,3 +60,29 @@ class Photo(models.Model):
 
     def __str__(self):
         return self.image.name
+    
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None  # Перевіряємо, чи це нове фото
+        super().save(*args, **kwargs)  # Спочатку зберігаємо фото
+
+        if is_new and self.folder:  # Якщо це нове фото і воно в папці
+            # Додамо дозволи всім користувачам, які мають доступ до цієї папки
+            users_with_access = FolderPermission.objects.filter(folder=self.folder).values_list('user', flat=True)
+            # Додаємо доступ всім користувачам з дозволом на папку
+            for user_id in users_with_access:
+                PhotoPermission.objects.get_or_create(photo=self, user_id=user_id)
+
+class PhotoPermission(models.Model):
+    VIEW = "view"
+    PERMISSION_CHOICES = [
+        (VIEW, "Перегляд"),
+    ]
+
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name="permissions")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    permission = models.CharField(max_length=10, choices=PERMISSION_CHOICES, default=VIEW)
+
+    class Meta:
+        unique_together = ("photo", "user")  # Один користувач - одне фото
+
+

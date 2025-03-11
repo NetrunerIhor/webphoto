@@ -10,7 +10,17 @@
     <!-- Header -->
     <header class="bg-white shadow-md py-4">
         <div class="container mx-auto flex justify-between items-center px-6">
-            <h1 class="text-2xl font-bold text-blue-600"><a href="{% url 'home' %}">Фотоальбом</a></h1>
+            {% if user.is_authenticated %}
+            <div class="flex justify-center space-x-4">
+                <a href="{% url 'profile-page' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="12" fill="currentColor" class="bi bi-person-fill-gear" viewBox="0 0 16 16">
+                        <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-9 8c0 1 1 1 1 1h5.256A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1 1.544-3.393Q8.844 9.002 8 9c-5 0-6 3-6 4m9.886-3.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+                      </svg></a>
+            </div>
+            {% endif %}
+            <h1 class="text-2xl font-bold text-blue-600 text-center flex-1">
+                <a href="{% url 'home' %}">Поламаний Фотоальбом</a>
+            </h1>
             <nav class="flex space-x-4">
                 {% if user.is_authenticated %}
                     <a href="{% url 'photo_album' %}" class="text-gray-600 hover:text-blue-600">Мій Альбом</a>
@@ -22,19 +32,39 @@
             </nav>
         </div>
     </header>
+    {% if messages %}
+    <div id="messages-container" class="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 space-y-3">
+        {% for message in messages %}
+            <div class="px-6 py-4 rounded-lg shadow-lg text-white text-center max-w-md
+                {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% elif message.tags == 'warning' %} bg-yellow-500 {% else %} bg-blue-500 {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto px-6 py-4">
         {% block content %}{% endblock %}
+        
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-4 text-center">
-        <p>&copy; 2025 Фотоальбом. Всі права захищені.</p>
+        <p>&copy; 2025 Поламаний Фотоальбом. Всі права захищені.</p>
     </footer>
 
-    {% load static %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                const messages = document.getElementById("messages-container");
+                if (messages) {
+                    messages.style.transition = "opacity 0.5s";
+                    messages.style.opacity = "0";
+                    setTimeout(() => messages.remove(), 500);
+                }
+            }, 3000); // Закриває через 3 секунди
+        });
+    </script>
 </body>
 </html>

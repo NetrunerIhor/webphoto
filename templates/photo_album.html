@@ -12,7 +12,7 @@
 
     <!-- Папки -->
     <h3 class="text-lg font-medium mb-2">Папки:</h3>
-        <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="grid grid-cols-4 gap-4 mb-4">
             {% for subfolder in folders %}
             <div class="relative group">
                 <a href="{% url 'photo_album_with_folder' folder_id=subfolder.id %}" class="bg-gray-200 p-4 rounded-lg flex flex-col items-center hover:bg-gray-300 transition">
@@ -37,105 +37,248 @@
             {% endfor %}
         </div>
 
-    <!-- Фотографії -->
-    <h3 class="text-lg font-medium mb-2">Фотографії:</h3>
-    <div class="grid grid-cols-3 gap-4 mb-4">
-    {% for photo in photos %}
-        <div class="photo-thumb bg-white p-4 rounded-lg shadow-md">
-            <img src="{{ photo.image.url }}" alt="Фото" class="w-full h-32 object-cover rounded">
-            <div class="mt-2">
-                {% if photo.share_link %}
-                    <a href="{% url 'shared_photo' share_link=photo.share_link %}" class="text-blue-500 hover:underline">Поділитись</a>
-                {% else %}
-                    <form method="post" action="{% url 'generate_share_link' photo_id=photo.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="text-blue-500 hover:underline">Згенерувати посилання</button>
-                    </form>
-                {% endif %}
+        <!-- Фотографії -->
+        <h3 class="text-lg font-medium mb-2">Фотографії:</h3>
+            <div class="grid grid-cols-4 md:grid-cols-4 gap-4 justify-center mb-4">
+                {% for photo in photos %}
+                    <div class="photo-thumb bg-white p-4 rounded-lg shadow-md flex flex-col items-center" >
+                        <img src="{{ photo.image.url }}" alt="Фото" class="w-full h-32 object-cover rounded" title="{{ photo.user.username }}">
+                       
+                        <!-- Контейнер для кнопок -->
+                        <div class="flex justify-start gap-2 mt-2">
+                        {% if photo.user == request.user or can_edit  %} 
+                            {% if photo.share_link %}
+                                <a href="{% url 'shared_photo' share_link=photo.share_link %}" class="text-blue-500 hover:underline" title="Поділитись">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                                    </svg>
+                                </a>
+                            {% else %}
+                                <form method="post" action="{% url 'generate_share_link' photo_id=photo.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-blue-500 hover:underline", title="Створити посилання">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                                            <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
+                                            <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
+                                          </svg>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            {% if photo.user == user %}
+                                <button onclick="toggleShareForm('{{ photo.id }}')" class="text-green-500 hover:underline" title="Поділитися з користувачем">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                                    </svg>
+                                </button>
+                            {% endif %}
+                            
+                            <button onclick="toggleForm('PhotoMoveForm-{{ photo.id }}')" class="text-purple-500 hover:underline" title="Перемістити фото">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-folder-symlink" viewBox="0 0 16 16">
+                                    <path d="m11.798 8.271-3.182 1.97c-.27.166-.616-.036-.616-.372V9.1s-2.571-.3-4 2.4c.571-4.8 3.143-4.8 4-4.8v-.769c0-.336.346-.538.616-.371l3.182 1.969c.27.166.27.576 0 .742"/>
+                                    <path d="m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m.694 2.09A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09l-.636 7a1 1 0 0 1-.996.91H2.826a1 1 0 0 1-.995-.91zM6.172 2a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z"/>
+                                </svg>
+                            </button>
+                        {% endif %}
+
+                            <form method="post" action="{% url 'delete_photo' photo_id=photo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-500 hover:underline" title="Видалити">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M6 4a1 1 0 011-1h6a1 1 0 011 1v1h3a1 1 0 110 2h-1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 110-2h3V4zm2 3a1 1 0 112 0v7a1 1 0 11-2 0V7zm4 0a1 1 0 112 0v7a1 1 0 11-2 0V7z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </form>
+
+                            <div id="PhotoMoveForm-{{ photo.id }}" class="hidden">
+                                <form method="post" action="{% url 'move_photo' photo.id %}">
+                                    {% csrf_token %}
+                                    <label for="folder">Виберіть папку:</label>
+                                    <select name="folder_id" id="folder">
+                                        <option value="">📂 Головна папка</option> <!-- Опція для переміщення у головну папку -->
+                                        {% for folder in allowed_folders %}
+                                            <option value="{{ folder.id }}">{{ folder.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="text-blue-500 hover:underline">Перемістити</button>
+                                </form>
+                            </div>
+                            <div id="shareForm-{{ photo.id }}" class="hidden relative">
+                                <form method="POST" action="{% url 'share_photo' photo_id=photo.id %}" class="photo-share-form relative">
+                                    {% csrf_token %}
+                                    <label for="username-photo-{{ photo.id }}">Введіть ім'я користувача:</label>
+                                    <input type="text" name="username" id="username-photo-{{ photo.id }}" 
+                                           class="usernameInput border p-2 w-full relative">
+                                    <ul class="userList hidden border bg-white absolute left-0 w-full max-h-40 overflow-auto z-50 shadow-md"></ul>
+                                    <button type="submit" class="bg-blue-500 text-white p-2 mt-2">Підтвердити</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-gray-500">Немає фотографій.</p>
+                {% endfor %}
             </div>
-            <!-- кнопка для видалення -->
-            <form method="post" action="{% url 'delete_photo' photo_id=photo.id %}" class="mt-2">
-                {% csrf_token %}
-                <button type="submit" class="text-red-500 hover:underline">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 4a1 1 0 011-1h6a1 1 0 011 1v1h3a1 1 0 110 2h-1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 110-2h3V4zm2 3a1 1 0 112 0v7a1 1 0 11-2 0V7zm4 0a1 1 0 112 0v7a1 1 0 11-2 0V7z" clip-rule="evenodd" />
+
+        <!--модальне вікно-->
+        <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex justify-center items-center z-50"> 
+            <div class="relative max-w-full max-h-full flex justify-center items-center">
+                <img id="modalImage" class="max-h-[80vh] rounded shadow-lg object-contain">
+                
+                <button class="absolute top-2 right-2 text-white text-3xl" onclick="closeModal()">×</button>
+            </div>
+            <!-- Кнопки навігації -->
+            <button id="prevButton" class="absolute top-1/2 left-4 text-white text-3xl transform -translate-y-1/2" onclick="prevImage()">&#8249;</button>
+            <button id="nextButton" class="absolute top-1/2 right-4 text-white text-3xl transform -translate-y-1/2" onclick="nextImage()">&#8250;</button>
+        </div>
+
+        <div>
+            <!-- Додати фото -->
+            <button onclick="toggleForm('addPhotoForm')" class="text-blue-500 hover:underline" title="Додати фото">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h3l1-2h6l1 2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v4m-2-2h4" />
+                </svg>
+                
+            </button>
+            
+
+            <!-- Створити папку -->
+            <button onclick="toggleForm('createFolderForm')" class="text-green-500 hover:underline" title="Створити папку">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                </svg>
+            </button>
+            
+
+            <!-- Поділитись папкою -->
+            {% if folder and folder.user == user and folder.id%}
+                <button onclick="toggleForm('shareFolderForm')" class="text-purple-500 hover:underline" title="Поділитися папкою">
+                    <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>          
+                </button>
+                
+                <button onclick="toggleForm('MoveFolderForm')" class="text-purple-500 hover:underline" title="Перемістити папку">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-folder-symlink" viewBox="0 0 16 16">
+                        <path d="m11.798 8.271-3.182 1.97c-.27.166-.616-.036-.616-.372V9.1s-2.571-.3-4 2.4c.571-4.8 3.143-4.8 4-4.8v-.769c0-.336.346-.538.616-.371l3.182 1.969c.27.166.27.576 0 .742"/>
+                        <path d="m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m.694 2.09A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09l-.636 7a1 1 0 0 1-.996.91H2.826a1 1 0 0 1-.995-.91zM6.172 2a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z"/>
                     </svg>
+                </button>
+                
+            {% endif %} 
+            {% if folder %}
+            <button onclick="toggleForm('Group')" class="text-purple-500 hover:underline" title="Перемістити папку">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg> 
+            </button>
+            {% endif %}
+        </div>
+        <div id="addPhotoForm" class="hidden">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ photo_form.as_p }}
+                <button type="submit" name="upload_photo" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                    Завантажити
                 </button>
             </form>
         </div>
-    {% empty %}
-        <p class="text-gray-500">Немає фотографій.</p>
-    {% endfor %}
-    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex justify-center items-center z-50"> 
-        <div class="relative max-w-full max-h-full flex justify-center items-center">
-            <img id="modalImage" class="max-h-[80vh] rounded shadow-lg object-contain">
-            
-            <button class="absolute top-2 right-2 text-white text-3xl" onclick="closeModal()">×</button>
+        <div id="createFolderForm" class="hidden">
+            <form method="POST">
+                {% csrf_token %}
+                {{ folder_form.as_p }}
+                <button type="submit" name="create_folder" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                    Створити
+                </button>
+            </form>
         </div>
-        <!-- Кнопки навігації -->
-        <button id="prevButton" class="absolute top-1/2 left-4 text-white text-3xl transform -translate-y-1/2" onclick="prevImage()">&#8249;</button>
-        <button id="nextButton" class="absolute top-1/2 right-4 text-white text-3xl transform -translate-y-1/2" onclick="nextImage()">&#8250;</button>
-    </div>
+        {% if folder and folder.user == user and folder.id%}
+        <div id="shareFolderForm" class="hidden">
+            <form method="post" action="{% url 'share_folder' folder_id=folder.id %}">
+                {% csrf_token %}
+                <input id="usernameInput" type="text" name="username" placeholder="Ім'я користувача" class="border p-2 rounded-lg w-full">
+                <ul id="userList" class="hidden border mt-2 w-full bg-white shadow-lg rounded-lg max-h-48 overflow-y-auto">
+                    <!-- Список користувачів  -->
+                </ul>
+                <select name="permission" class="border p-2 rounded-lg w-full mt-2">
+                    <option value="read">Тільки перегляд</option>
+                    <option value="edit">Редагування</option>
+                </select>
+                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-lg mt-2 hover:bg-purple-600 transition">
+                    Поділитись
+                </button>
+            </form>
+        </div>
+        
+        <div id="MoveFolderForm" class="hidden">
+            <form method="post" action="{% url 'move_folder' folder.id %}">
+                {% csrf_token %}
+                <label for="parent">Виберіть нову папку:</label>
+                <select name="parent_id" id="parent">
+                    <option value="">📂 Головна папка</option>
+                    {% for f in allowed_folders %}
+                        {% if f.id != folder.id %}
+                            <option value="{{ f.id }}">{{ f.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button type="submit">Перемістити</button>
+            </form>
+        </div>
+    
+        <div id="Group" class="hidden">
+            <h3 class="text-lg font-medium mt-4">Користувачі з доступом:</h3>
+            <ul class="border p-4 rounded-lg bg-gray-100">
+                <span>{{ folder.user.username }} (Власник)</span>
+                {% for permission in shared_users %}
+                    <li class="flex justify-between items-center mb-2">
+                        <span>{{ permission.user.username }} ({{ permission.get_permission_display }})</span>
+                        <form method="post" action="{% url 'remove_user_permission' folder_id=folder.id user_id=permission.user.id %}">
+                            {% csrf_token %}
+                            {% if folder.user == user %}
+                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition">
+                                Видалити доступ
+                            </button>
+                            {% endif %}
+                        </form>
+                    </li>
+                {% empty %}
+                    <p class="text-gray-500">Немає користувачів із доступом.</p>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
-    </div>
+    
 
-        <!-- Додати фото -->
-        <h3 class="text-lg font-medium mb-2">Додати фото:</h3>
-        <form method="POST" enctype="multipart/form-data" class="mb-4">
-    {% csrf_token %}
-    {{ photo_form.as_p }}
-        <button type="submit" name="upload_photo" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Завантажити</button>
-        </form>
+<script>
+    function  toggleShareForm(photoId) {
+        console.log("Натиснута кнопка для фото ID:", photoId); // Перевірка
 
-        <!-- Створити папку -->
-        <h3 class="text-lg font-medium mb-2">Створити папку:</h3>
-        <form method="POST" class="mb-4">
-    {% csrf_token %}
-    {{ folder_form.as_p }}
-        <button type="submit" name="create_folder" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">Створити</button>
-        </form>
+        var form = document.getElementById("shareForm-" + photoId);
+        if (form) {
+            console.log("Форма знайдена:", form); // Перевірка
+            form.classList.toggle("hidden"); // Перемикає видимість
+        } else {
+            console.error("Форма з ID " + photoId + " не знайдена.");
+        }
+    }
 
-    <!-- Поділитись папкою -->
-    {% if folder %}
-        <h3 class="text-lg font-medium mt-4">Поділитись папкою:</h3>
-        <form method="post" action="{% url 'share_folder' folder_id=folder.id %}" class="mt-2">
-            {% csrf_token %}
-            
-            <!-- Поле введення з прив'язаним списком -->
-            <input type="text" id="usernameInput" name="username" placeholder="Ім'я користувача" 
-                class="border p-2 rounded-lg w-full" autocomplete="off">
+    function toggleForm(formId) {
+        console.log("Натиснута кнопка для форми ID:", formId); // Перевірка
 
-            <ul id="userList" class="border p-2 rounded-lg w-full bg-white absolute hidden"></ul>
+        var form = document.getElementById(formId);
+        if (form) {
+            console.log("Форма знайдена:", form); // Перевірка
+            form.classList.toggle("hidden"); // Перемикає видимість
+        } else {
+            console.error("Форма з ID " + formId + " не знайдена.");
+        }
+    }
+</script>
 
-            <select name="permission" class="border p-2 rounded-lg w-full mt-2">
-                <option value="read">Тільки перегляд</option>
-                <option value="edit">Редагування</option>
-            </select>
-            
-            <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-lg mt-2 hover:bg-purple-600 transition">
-                Поділитись
-            </button>
-        </form>
-    {% endif %}
-    {% if folder %}
-    <h3 class="text-lg font-medium mt-4">Користувачі з доступом:</h3>
-    <ul class="border p-4 rounded-lg bg-gray-100">
-        {% for permission in shared_users %}
-            <li class="flex justify-between items-center mb-2">
-                <span>{{ permission.user.username }} ({{ permission.get_permission_display }})</span>
-                <form method="post" action="{% url 'remove_user_permission' folder_id=folder.id user_id=permission.user.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition">
-                        Видалити доступ
-                    </button>
-                </form>
-            </li>
-        {% empty %}
-            <p class="text-gray-500">Немає користувачів із доступом.</p>
-        {% endfor %}
-    </ul>
-{% endif %}
-    {% load static %}
+{% load static %}
     <script src="{% static 'js/photo_modal.js' %}"></script>
     <script src="{% static 'js/search_users.js' %}"></script>
 {% endblock %}

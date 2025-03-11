@@ -10,3 +10,4 @@ class FolderCreateForm(forms.ModelForm):
     class Meta:
         model = Folder
         fields = ['name', 'parent']
+

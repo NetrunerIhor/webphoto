@@ -1,0 +1,45 @@
+/* Покращення загального вигляду */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+}
+
+/* Стилізація заголовку */
+.module h2 {
+    color: #2563eb;
+    font-size: 1.25rem;
+}
+
+/* Кнопки */
+.submit-row input {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-row input:hover {
+    background-color: #1e40af;
+}
+
+/* Таблиці */
+#changelist-form table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+}
+
+#changelist-form th {
+    background: #2563eb;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+#changelist-form td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}

@@ -143,6 +143,8 @@ MESSAGE_TAGS = {
 }
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+CLOUDINARY_URL="cloudinary://129874782162214:F6qStYlcoTvgUOdtKNRPYBlYUe4@dfe4octbm"
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': "dfe4octbm",
     'API_KEY': "129874782162214",

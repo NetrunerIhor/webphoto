@@ -142,7 +142,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+CLOUDINARY_SECURE = True
 CLOUDINARY_URL="cloudinary://129874782162214:F6qStYlcoTvgUOdtKNRPYBlYUe4@dfe4octbm"
 
 CLOUDINARY_STORAGE = {
@@ -159,3 +159,4 @@ cloudinary.config(
 
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+SECURE_SSL_REDIRECT = True

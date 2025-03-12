@@ -276,6 +276,90 @@
             console.error("Форма з ID " + formId + " не знайдена.");
         }
     }
+    let currentIndex = 0;
+const images = Array.from(document.querySelectorAll('.photo-thumb img'));
+
+function openModal(index) {
+    currentIndex = index;
+    document.getElementById('modalImage').src = images[currentIndex].src;
+    document.getElementById('photoModal').classList.remove('hidden');
+    updateNavigation();
+}
+
+function closeModal() {
+    document.getElementById('photoModal').classList.add('hidden');
+}
+
+function nextImage() {
+    if (currentIndex < images.length - 1) {
+        currentIndex++;
+        openModal(currentIndex);
+    }
+}
+
+function prevImage() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        openModal(currentIndex);
+    }
+}
+
+function updateNavigation() {
+    document.getElementById('prevButton').style.display = (currentIndex > 0) ? 'block' : 'none';
+    document.getElementById('nextButton').style.display = (currentIndex < images.length - 1) ? 'block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    images.forEach((img, index) => {
+        img.addEventListener('click', () => openModal(index));
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".photo-share-form, .folder-share-form").forEach(form => {
+        const input = form.querySelector(".usernameInput");
+        const userList = form.querySelector(".userList");
+
+        input.addEventListener("input", function () {
+            let query = input.value.trim();
+
+            if (query.length < 3) {
+                userList.innerHTML = "";
+                userList.classList.add("hidden");
+                return;
+            }
+
+            fetch(`/search-users/?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    userList.innerHTML = "";
+                    if (data.users.length > 0) {
+                        data.users.forEach(user => {
+                            let listItem = document.createElement("li");
+                            listItem.textContent = user.username;
+                            listItem.classList.add("p-2", "hover:bg-gray-200", "cursor-pointer");
+                            listItem.addEventListener("click", function () {
+                                input.value = user.username;
+                                userList.innerHTML = "";
+                                userList.classList.add("hidden");
+                            });
+                            userList.appendChild(listItem);
+                        });
+                        userList.classList.remove("hidden");
+                    } else {
+                        userList.classList.add("hidden");
+                    }
+                })
+                .catch(error => console.error("Помилка пошуку:", error));
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!input.contains(event.target) && !userList.contains(event.target)) {
+                userList.classList.add("hidden");
+            }
+        });
+    });
+});
 </script>
 
 {% load static %}
